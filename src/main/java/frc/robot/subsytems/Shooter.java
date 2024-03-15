@@ -30,7 +30,6 @@ public class Shooter extends SubsystemBase {
     // private final TalonSRX ampDeflector = new TalonSRX(0);
     // private final CANcoder deflectorEncoder = new CANcoder(0);
     //private double ampSet;
-
     // shooterOne.setUpdateFrequency(200);
     // set the update frequency
 

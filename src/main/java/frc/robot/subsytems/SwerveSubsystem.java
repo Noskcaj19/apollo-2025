@@ -91,10 +91,10 @@ public class SwerveSubsystem extends SubsystemBase {
                 return hitFilter.calculate(fLSwerve.driveMotor.getEncoder().getVelocity());
         }
 
-        boolean uh = false;
+        public boolean uh = false;
 
         public boolean hasHitSomething(){
-                if(getDriveMotorVelocity() > 1.3){
+                if(Math.abs(getDriveMotorVelocity()) > 1.3){
                         uh = true;
                 }
                 if(uh == true && Math.abs(getDriveMotorVelocity()) < 0.4){
