@@ -1,5 +1,9 @@
 package frc.robot.command.autolime.autoSequences;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -28,29 +32,37 @@ public class CenterAuto extends SequentialCommandGroup {
         this.swerveSub = swerveSub;
         this.shooterSub = shooterSub;
         this.intakeSub = intakeSub;
-
         addCommands(
                 // new AutoShoot(shooterSub, intakeSub).until(intakeSub::doesntHaveNote).withTimeout(2), 
                 new AutoShootSmart(shooterSub, intakeSub),
                 Commands.race(
                     new AutoDrive(swerveSub, 3, 0.2),
-                    new ParallelRaceGroup(
+                    Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.45))
                     )
                 ),
-                new AutoDrive(swerveSub, 5, -0.2).until(this::closeEnough),
-                new AutoShootSmart(shooterSub, intakeSub)
+                new AutoDrive(swerveSub, 5, -0.2).until(this::closeEnough).withTimeout(4),
+                new AutoShootSmart(shooterSub, intakeSub).withTimeout(4)
         );
     }
 
     
+    private MedianFilter zFilter = new MedianFilter(7);
     private boolean closeEnough() {
-        if(LimelightHelpers.getTargetPose3d_CameraSpace(("limelight-back")).getZ() < 1.3){
+        if(LimelightHelpers.getTV("limelight-back")){
+        var rawZ = LimelightHelpers.getTargetPose3d_CameraSpace(("limelight-back")).getZ();
+        var z = zFilter.calculate(rawZ);
+        if(z < 1.3){
             return true;
         }
         else{
             return false;
         }
+        }
+        else{
+            return false;
+        }
+
     }
 }
