@@ -8,6 +8,7 @@ import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -26,6 +27,7 @@ public class Intake extends SubsystemBase {
     // kind of like beatle jaws
     public Intake(Shooter shooterSub) {
 
+        Shuffleboard.getTab("Drive").addBoolean("hasNote", this::hasNote);
         this.shooterSub = shooterSub;
 
         intakeTwo.setInverted(false);

@@ -81,7 +81,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    new JoystickButton(primaryJoy, 7).whileTrue(new AutoAlignTags(swerveSub, 1));
+    new JoystickButton(primaryJoy, 7).whileTrue(new AutoAlignTags(swerveSub, 2));
     // new JoystickButton(primaryJoy, 8).whileTrue(new PathPlannerAuto("New New
     new JoystickButton(primaryJoy, 11).whileTrue(new PathPlannerAuto("RIGHTAUTO"));
   
