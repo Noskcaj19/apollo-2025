@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.command.autolime.AutoAlignTags;
 
 //add motor channel numbers later
 public class SwerveSubsystem extends SubsystemBase {
@@ -52,6 +53,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
         public void drive(double xPercent, double yPercent, double rotPercent, boolean fieldRelative, double a,
                         double b) {
+
+                // System.out.println("DRIVE");
+                // if (!AutoAlignTags.running) {
+                // var st = Thread.currentThread().getStackTrace();
+                // for (var s : st) {
+                //         System.out.println(s + "\n");
+                // }
+
+                // }
 
                 var xSpeed = xRateLimiter.calculate(xPercent) * Constants.DriveConstants.MaxVelocityMetersPerSecond;
                 var ySpeed = yRateLimiter.calculate(yPercent) * Constants.DriveConstants.MaxVelocityMetersPerSecond;

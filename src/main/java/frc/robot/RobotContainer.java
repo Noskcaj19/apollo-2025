@@ -17,11 +17,14 @@ import frc.robot.command.DefaultClimb;
 import frc.robot.command.DefaultIntake;
 import frc.robot.command.DefaultShooter;
 import frc.robot.command.DefaultSwerve;
+import frc.robot.command.autolime.AutoAlignNotes;
 import frc.robot.command.autolime.AutoAlignTags;
 import frc.robot.command.autolime.AutoDrive;
+import frc.robot.command.autolime.NoteRotationAlign;
 import frc.robot.command.autolime.autoSequences.CenterAuto;
 import frc.robot.command.autolime.autoSequences.LeftAuto;
 import frc.robot.command.autolime.autoSequences.RightAuto;
+import frc.robot.command.autolime.autoSequences.ThreeNoteCenterAuto;
 import frc.robot.sds.ModuleConfiguration;
 import frc.robot.sds.SdsModuleConfigurations;
 import frc.robot.subsytems.Arms;
@@ -52,9 +55,9 @@ public class RobotContainer {
 
   // commands
   private final DefaultSwerve defaultSwerve = new DefaultSwerve(primaryJoy, swerveSub);
-  private final DefaultIntake intakeTransport = new DefaultIntake(mouth, secondaryController, shooter);
+  private final DefaultIntake intakeTransport = new DefaultIntake(mouth, secondaryController, shooter, primaryJoy);
   private final DefaultClimb climbCommand = new DefaultClimb(primaryJoy, Arms);
-  private final DefaultShooter shootCommand = new DefaultShooter(secondaryController, shooter, mouth);
+  private final DefaultShooter shootCommand = new DefaultShooter(primaryJoy, secondaryController, shooter, mouth);
 
   public RobotContainer() {
     swerveSub.setDefaultCommand(defaultSwerve);
@@ -66,6 +69,7 @@ public class RobotContainer {
     autoChooser.addOption("right", new RightAuto(swerveSub, shooter, mouth));
     autoChooser.addOption("center", new CenterAuto(swerveSub, shooter, mouth));
     autoChooser.addOption("left", new LeftAuto(swerveSub, shooter, mouth));
+    autoChooser.addOption("3_Note_Center", new ThreeNoteCenterAuto(swerveSub, shooter, mouth));
     // autoChooser.addOption("right",new ThreeAutoToRuleThemAll(swerveSub, shooter, mouth));
     Shuffleboard.getTab("auto").add(autoChooser);
 
@@ -81,10 +85,10 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    new JoystickButton(primaryJoy, 7).whileTrue(new AutoAlignTags(swerveSub, 2));
+    new JoystickButton(primaryJoy, 3).whileTrue(new AutoAlignTags(swerveSub));
     // new JoystickButton(primaryJoy, 8).whileTrue(new PathPlannerAuto("New New
-    new JoystickButton(primaryJoy, 11).whileTrue(new PathPlannerAuto("RIGHTAUTO"));
-  
+    // new JoystickButton(primaryJoy, 11).whileTrue(new PathPlannerAuto("RIGHTAUTO"));
+    new JoystickButton(primaryJoy, 10).whileTrue(new NoteRotationAlign(swerveSub));
     // Auto"));
   }
 

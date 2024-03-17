@@ -36,9 +36,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // System.out.println("==== before commands ====");
     CommandScheduler.getInstance().run();
-    // System.out.println("<<<< after commands <<<<");
   }
 
   @Override

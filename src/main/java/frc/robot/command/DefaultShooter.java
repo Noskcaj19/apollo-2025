@@ -8,13 +8,19 @@ import frc.robot.subsytems.Shooter;
 
 public class DefaultShooter extends Command {
 
+    private Joystick primaryController;
     private XboxController secondaryController;
     private Shooter shooterSub;
     private Intake intakeSub;
 
-    public DefaultShooter(XboxController secondController, Shooter shooterSub, Intake intakeSub) {
+    public DefaultShooter(
+            Joystick primaryController,
+            XboxController secondController,
+            Shooter shooterSub,
+            Intake intakeSub) {
         addRequirements(shooterSub);
         this.shooterSub = shooterSub;
+        this.primaryController = primaryController;
         this.secondaryController = secondController;
         this.intakeSub = intakeSub;
     }
@@ -53,11 +59,11 @@ public class DefaultShooter extends Command {
             intakeSub.feedOff();
         }
 
-        if(secondaryController.getXButton()) {
+        if(secondaryController.getXButton() || primaryController.getRawButton(8)) {
             intakeSub.feedBackwards();
             shooterSub.reverseShooters();
         }
-        if(secondaryController.getXButtonReleased()){
+        if(secondaryController.getXButtonReleased() || primaryController.getRawButtonReleased(8)){
             intakeSub.intakeOff();
             shooterSub.turnOff();
         }

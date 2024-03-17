@@ -26,12 +26,14 @@ public class AutoAlignTags extends Command {
     private double backTagID;
     private double frontTagID;
     private int tagChoice;
+    // private static double rot;
+    // private static double yOff;
 
-    final double getZontal() {
-        return (LimelightHelpers.getTX("limelight-back") / 27);
-        // return (x.getDouble(160)/160)-1;
-        // horizontal offset
-    }
+    // static double getZontal() {
+    //     return (LimelightHelpers.getTX("limelight-back") / 27);
+    //     // return (x.getDouble(160)/160)-1;
+    //     // horizontal offset
+    // }
 
     final Pose3d getSpace() {
         return (LimelightHelpers.getTargetPose3d_RobotSpace("limelight-back"));
@@ -41,7 +43,11 @@ public class AutoAlignTags extends Command {
         // why is everything so
     }
 
-    public AutoAlignTags(SwerveSubsystem swerveSub, int tagChoice) {
+    public static boolean speakerAimReady() {
+        return LimelightHelpers.getTV("limelight-back");
+    }
+
+    public AutoAlignTags(SwerveSubsystem swerveSub) {
 
         // ignore me bbg
         // make tr
@@ -61,6 +67,18 @@ public class AutoAlignTags extends Command {
 
     }
 
+    public boolean aligned(){
+        if (!LimelightHelpers.getTV("limelight-back")) {
+            return false;
+        }
+        if((getSpace().getZ()< 1.55 && getSpace().getZ() > 1.4) && (Math.abs(getSpace().getX()) < 0.2)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     @Override
     public void initialize() {
         distancePID.reset(1.5);
@@ -71,7 +89,8 @@ public class AutoAlignTags extends Command {
     @Override
     public void execute() {
         if (LimelightHelpers.getTV("limelight-back")) {
-
+            var id = LimelightHelpers.getFiducialID("limelight-back");
+            // if (!(id == 7 || id == 4)) { return; }
             // backTagID = LimelightHelpers.getFiducialID("limelight-back");
                         // double xOff = -xPID.calculate(getZontal());
                         var rot = xPID.calculate(getSpace().getX());
@@ -81,6 +100,7 @@ public class AutoAlignTags extends Command {
                         var df = NetworkTableInstance.getDefault();
                         df.getEntry("/Shuffleboard/Tune/LimeZ").setDouble(getSpace().getZ());
                         double yOff = distancePID.calculate(getSpace().getZ());
+                        yOff = MathUtil.clamp(yOff, -DriveConstants.MaxVelocityMetersPerSecond/3.5, DriveConstants.MaxVelocityMetersPerSecond/3.5);
                         df.getEntry("/Shuffleboard/Tune/DistancePID").setDouble(yOff);
                         // figure out how to use an array, which value of the array am i using??
 
@@ -94,11 +114,20 @@ public class AutoAlignTags extends Command {
                         // is x forward and backward??
                         // wtf
                         // is y forward?
-        }
+            }
         
-        else {
-            swerveSub.drive(0, 0, 0, false);
-        }
+            // else if(LimelightHelpers.getTV("limelight-front")){
+            //     if(!LimelightHelpers.getTV("limelight-back")){
+            //         swerveSub.drive(0, 0, 0.25, false);
+            //     }
+            // }
+            else {
+                swerveSub.drive(0, 0, 0, false);
+            }
     }
 
+    @Override
+    public void end(boolean interrupted) {
+        swerveSub.drive(0, 0, 0, false, 0, 0);
+    }
 }

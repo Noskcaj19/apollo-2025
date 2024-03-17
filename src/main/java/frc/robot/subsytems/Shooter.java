@@ -59,8 +59,8 @@ public class Shooter extends SubsystemBase {
         // ampDeflector.set(TalonSRXControlMode.PercentOutput,
         // deflectorPID.calculate(ampEncoder));
         // ampDeflector.set(TalonSRXControlMode.PercentOutput, ampSet);
-        shooterOne.set(TalonSRXControlMode.PercentOutput, -.65);
-        shooterTwo.set(TalonSRXControlMode.PercentOutput, .65);
+        shooterOne.set(TalonSRXControlMode.PercentOutput, -.5);
+        shooterTwo.set(TalonSRXControlMode.PercentOutput, .5);
         // whatever
     }
 
@@ -84,7 +84,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isToAmpSpeed() {
-        if (shooterOne.getSelectedSensorVelocity() > 2000 && shooterTwo.getSelectedSensorVelocity() > 2000) {
+        if (shooterOne.getSelectedSensorVelocity() > 1500 && shooterTwo.getSelectedSensorVelocity() > 1500) {
             return true;
         } else {
             return false;

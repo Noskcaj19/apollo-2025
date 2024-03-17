@@ -127,14 +127,12 @@ public class Intake extends SubsystemBase {
             // + (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT));
             if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
                 if (measurement.distance_mm < 300) {
-                    System.out.println("1");
                     intakeOne.set(ControlMode.PercentOutput, .0);
                     intakeTwo.set(ControlMode.PercentOutput, .5);
                     // transport.set(ControlMode.PercentOutput, 0.0);
                     // return;
                 }
                 if (measurement.distance_mm < 250) {
-                    System.out.println("2");
 
                     intakeOne.set(ControlMode.PercentOutput, .0);
                     intakeTwo.set(ControlMode.PercentOutput, .25);

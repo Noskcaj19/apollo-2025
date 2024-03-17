@@ -2,19 +2,22 @@ package frc.robot.command;
 
 import frc.robot.subsytems.Intake;
 import frc.robot.subsytems.Shooter;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DefaultIntake extends Command {
 
+    private final Joystick primaryController;
     private final XboxController secondaryController;
     Intake mouth;
     Shooter shooterSub;
 
-    public DefaultIntake(Intake mouth, XboxController secondaryController, Shooter shooterSub) {
+    public DefaultIntake(Intake mouth, XboxController secondaryController, Shooter shooterSub, Joystick primaryController) {
 
         addRequirements(mouth);
         this.secondaryController = secondaryController;
+        this.primaryController = primaryController;
         this.mouth = mouth;
         this.shooterSub = shooterSub;
     }
@@ -43,10 +46,10 @@ public class DefaultIntake extends Command {
 
         // System.out.println(mouth.getTaking());
 
-        if (secondaryController.getRightBumperPressed()) {
+        if (secondaryController.getRightBumperPressed() || primaryController.getRawButtonPressed(7)) {
             mouth.feedOn();
         }
-        if (secondaryController.getRightBumperReleased()) {
+        if (secondaryController.getRightBumperReleased() || primaryController.getRawButtonReleased(7)) {
             mouth.feedOff();
             shooterSub.turnOff();
         }
