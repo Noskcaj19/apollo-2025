@@ -45,7 +45,7 @@ public class DefaultShooter extends Command {
         }
 
         // again for speaker
-        if (secondaryController.getYButton() || primaryController.getRawButtonPressed(8)) {
+        if (secondaryController.getYButton()) {
             // auto rotation (accpted apriltags ?)
             shooterSub.shootSpeaker();
 
@@ -53,7 +53,7 @@ public class DefaultShooter extends Command {
                 intakeSub.feedOn();
             }
         }
-        if (secondaryController.getYButtonReleased() || primaryController.getRawButtonReleased(8)) {
+        if (secondaryController.getYButtonReleased()) {
             // go back to manual drive
             shooterSub.turnOff();
             intakeSub.feedOff();

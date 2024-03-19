@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.LimelightHelpers;
 import frc.robot.command.autolime.AutoAlignTags;
 import frc.robot.command.autolime.AutoDrive;
+import frc.robot.command.autolime.AutoDriveAndTrackNote;
 import frc.robot.command.autolime.AutoIntake;
 import frc.robot.command.autolime.AutoRotate;
 import frc.robot.command.autolime.AutoShootSmart;
@@ -38,7 +39,7 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub),
                 Commands.race(
-                    new AutoDrive(swerveSub, 3, 0.2),
+                    new AutoDriveAndTrackNote(swerveSub, 3, 0.2),
                     Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
@@ -52,9 +53,8 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(4),
                 // end 2nd note
                 new AutoRotate(swerveSub, -10, 0.08),
-                new NoteRotationAlign(swerveSub).withTimeout(2),
                 Commands.race(
-                    new AutoDrive(swerveSub, 2.5, 0.2),
+                    new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
                     Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
