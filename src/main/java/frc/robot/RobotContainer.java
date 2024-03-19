@@ -41,7 +41,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 public class RobotContainer {
 
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
-  private final Robot robot = new Robot();
 
   // controllers
   private final Joystick primaryJoy = new Joystick(0);

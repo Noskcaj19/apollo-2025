@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.LimelightHelpers;
-import frc.robot.command.autolime.AutoAlignNotes;
 import frc.robot.command.autolime.AutoAlignTags;
 import frc.robot.command.autolime.AutoDrive;
 import frc.robot.command.autolime.AutoIntake;
@@ -32,9 +31,9 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
         this.intakeSub = intakeSub;
 
         var autoAlign = new AutoAlignTags(swerveSub);
+        var autoAlignNote3 = new AutoAlignTags(swerveSub);
 
         addCommands(
-                // new AutoShoot(shooterSub, intakeSub).until(intakeSub::doesntHaveNote).withTimeout(2), 
                 new AutoAlignTags(swerveSub).withTimeout(.5),
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub),
@@ -42,26 +41,29 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                     new AutoDrive(swerveSub, 3, 0.2),
                     Commands.race(
                         new AutoIntake(intakeSub),
-                        new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.3))
+                        new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
                     )
                 ),
                 new AutoDrive(swerveSub, 1, -0.2).until(this::closeEnough).withTimeout(4),
                 autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
-                new AutoAlignTags(swerveSub).withTimeout(.5),
+                // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
+                new AutoAlignTags(swerveSub).withTimeout(.5), 
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(4),
                 // end 2nd note
-                new AutoRotate(swerveSub, 30, 0.3),
-                new NoteRotationAlign(swerveSub).withTimeout(3),
+                new AutoRotate(swerveSub, -10, 0.08),
+                new NoteRotationAlign(swerveSub).withTimeout(2),
                 Commands.race(
-                    new AutoDrive(swerveSub, 2.5, 0.5),
+                    new AutoDrive(swerveSub, 2.5, 0.2),
                     Commands.race(
                         new AutoIntake(intakeSub),
-                        new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.3))
+                        new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
                     )
                 ),
-                new AutoRotate(swerveSub, 45, 0.3).until(AutoAlignTags::speakerAimReady).withTimeout(5),
-                new AutoAlignTags(swerveSub),
+                new AutoRotate(swerveSub, 15, 0.025).until(AutoAlignTags::speakerAimReady).withTimeout(5),
+                autoAlignNote3.until(autoAlignNote3::aligned),//.until(AutoAlignTags::aligned),
+                // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
+                new AutoAlignTags(swerveSub).withTimeout(1), 
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub)
              );

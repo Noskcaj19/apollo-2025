@@ -2,6 +2,8 @@ package frc.robot.command.autolime;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,11 +17,12 @@ public class NoteRotationAlign extends Command{
     private ProfiledPIDController rotationPid;
     double ku = .4;
     double tu = 1.1;
-    double kuh = .3;
-    double tuh = 1.6;
+    double kuh = .05;
+    double tuh = .7;
 
+    MedianFilter horizontalFilter = new MedianFilter(3);
     final double getHorizontalOffset() {
-        return (LimelightHelpers.getTX("limelight-front"));
+        return horizontalFilter.calculate(LimelightHelpers.getTX("limelight-front"));
         // return (x.getDouble(160)/160)-1;
         // whatever the distance is
         // returns the specific distance value we want so we can pid it???
@@ -29,7 +32,7 @@ static int count = 0;
     public NoteRotationAlign(SwerveSubsystem swerveSub){
         this.swerveSub = swerveSub;
         addRequirements(swerveSub);
-        rotationPid = new ProfiledPIDController(kuh*.6, tuh*.5, tuh*.125,
+        rotationPid = new ProfiledPIDController(0.03, 0, 0,
         // horizontalPid = new ProfiledPIDController(kuh*.6, 0, tuh*.125,
         new TrapezoidProfile.Constraints(Constants.DriveConstants.MaxVelocityMetersPerSecond / 3, 3/1.5));
         Shuffleboard.getTab("pid_debug").add("note_rotation_PID"+count, rotationPid);
@@ -38,20 +41,26 @@ static int count = 0;
     
     @Override
     public void initialize() {
+        time = 0;
         // forwardPid.reset(1.5);
         // horizontalPid.reset(0);
         
     }
+SlewRateLimiter turnLimit = new SlewRateLimiter(1);
 
+    int time = 0;
     @Override
     public void execute() {
         if (LimelightHelpers.getTV("limelight-front")) {
+            time += 1;
             var rot = rotationPid.calculate(getHorizontalOffset());
             rot = MathUtil.clamp(rot, -DriveConstants.MaxVelocityMetersPerSecond/5, DriveConstants.MaxVelocityMetersPerSecond/5);
 
-            swerveSub.drive(0, 0, rot/DriveConstants.MaxAngularVelocityRadiansPerSecond, false);
+            swerveSub.drive(0, 0, turnLimit.calculate(rot/DriveConstants.MaxAngularVelocityRadiansPerSecond), false);
         }else {
-            swerveSub.drive(0, 0, -0.175, false);
+            if ( time < 10) {
+                swerveSub.drive(0, 0, -0.08, false);
+            }
         }
     }
 
