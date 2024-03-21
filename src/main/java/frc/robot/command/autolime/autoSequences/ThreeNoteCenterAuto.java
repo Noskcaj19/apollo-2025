@@ -1,7 +1,12 @@
 package frc.robot.command.autolime.autoSequences;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -33,7 +38,10 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
 
         var autoAlign = new AutoAlignTags(swerveSub);
         var autoAlignNote3 = new AutoAlignTags(swerveSub);
+        
+        
 
+        
         addCommands(
                 new AutoAlignTags(swerveSub).withTimeout(.5),
                 new StopCommand(swerveSub),
@@ -52,7 +60,7 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(4),
                 // end 2nd note
-                new AutoRotate(swerveSub, -10, 0.08),
+                new ConditionalCommand(new AutoRotate(swerveSub, 10, 0.08), new AutoRotate(swerveSub, -10, 0.08), this::isBlue),
                 Commands.race(
                     new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
                     Commands.race(
@@ -60,7 +68,9 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
                     )
                 ),
-                new AutoRotate(swerveSub, 15, 0.025).until(AutoAlignTags::speakerAimReady).withTimeout(5),
+                new ConditionalCommand(new AutoRotate(swerveSub, -15, 0.025), new AutoRotate(swerveSub, 15, 0.025), this::isBlue)
+                    .until(AutoAlignTags::speakerAimReady)
+                    .withTimeout(5),
                 autoAlignNote3.until(autoAlignNote3::aligned),//.until(AutoAlignTags::aligned),
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
                 new AutoAlignTags(swerveSub).withTimeout(1), 
@@ -96,5 +106,20 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
             return false;
         }
 
+    }
+
+    private boolean isBlue() {
+        Optional<Alliance> ally = DriverStation.getAlliance();
+        if(ally.isPresent()){
+            if (ally.get() == Alliance.Blue) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
     }
 }
