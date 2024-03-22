@@ -64,7 +64,6 @@ public class AutoAlignTags extends Command {
         distancePID.setGoal(1.5);
         distancePID.setIntegratorRange(-15, 15);
         xPID.setIntegratorRange(-15, 15);
-
     }
 
     public boolean aligned(){

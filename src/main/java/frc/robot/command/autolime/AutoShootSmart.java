@@ -18,7 +18,8 @@ public class AutoShootSmart extends SequentialCommandGroup{
         this.shooterSub = shooterSub;
         this.intakeSub = intakeSub;
 
-        addCommands(new AutoShootEndless(shooterSub, intakeSub).until(intakeSub::doesntHaveNote), 
+        addCommands(
+            new AutoShootEndless(shooterSub, intakeSub).until(intakeSub::doesntHaveNote), 
             new WaitCommand(.1),
             new InstantCommand(()->{
                 intakeSub.feedOff();
