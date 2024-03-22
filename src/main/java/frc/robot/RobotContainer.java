@@ -17,6 +17,7 @@ import frc.robot.command.DefaultClimb;
 import frc.robot.command.DefaultIntake;
 import frc.robot.command.DefaultShooter;
 import frc.robot.command.DefaultSwerve;
+import frc.robot.command.ResetClimb;
 import frc.robot.command.autolime.AutoAlignNotes;
 import frc.robot.command.autolime.AutoAlignTags;
 import frc.robot.command.autolime.AutoDrive;
@@ -72,6 +73,7 @@ public class RobotContainer {
     autoChooser.addOption("3_Note_Center", new ThreeNoteCenterAuto(swerveSub, shooter, mouth));
     // autoChooser.addOption("right",new ThreeAutoToRuleThemAll(swerveSub, shooter, mouth));
     Shuffleboard.getTab("auto").add(autoChooser);
+    Shuffleboard.getTab("Drive").add("ResetClimb", new ResetClimb(Arms));
 
     // Shooter shooterSub = new Shooter();
     // AutoDrive step = new AutoDrive(swerveSub, 0, 0); // TODO

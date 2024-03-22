@@ -18,7 +18,7 @@ public class Arms extends SubsystemBase {
 
     // private
     public Arms() {
-        arm2.follow(arm1);
+        //arm2.follow(arm1);
     }
 
     public void setArmLimitSetpoint(double setpoint) {
@@ -35,14 +35,33 @@ public class Arms extends SubsystemBase {
 
     public void armsUp() {
         arm1.set(TalonSRXControlMode.PercentOutput, 0.8);
+        arm2.set(TalonSRXControlMode.PercentOutput, 0.8);
     }
 
     public void armsDown() {
         arm1.set(TalonSRXControlMode.PercentOutput, -0.99);
+        arm2.set(TalonSRXControlMode.PercentOutput, -0.99);
     }
 
     public void turnOff() {
         arm1.set(TalonSRXControlMode.PercentOutput, 0);
+        arm2.set(TalonSRXControlMode.PercentOutput, 0);
+    }
+
+    public void leftOverride(double goal) {
+        arm1.set(TalonSRXControlMode.PercentOutput, goal);
+    }
+
+    public void rightOverride(double goal) {
+        arm2.set(TalonSRXControlMode.PercentOutput, goal);
+    }
+
+    public double getLeftCurrent() {
+        return arm1.getStatorCurrent();
+    }
+
+    public double getRightCurrent() {
+        return arm2.getStatorCurrent();
     }
 
     @Override
