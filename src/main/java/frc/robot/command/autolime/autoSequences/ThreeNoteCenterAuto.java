@@ -37,7 +37,7 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
         this.intakeSub = intakeSub;
 
         var autoAlign = new AutoAlignTags(swerveSub);
-        var autoAlignNote3 = new AutoAlignTags(swerveSub);
+        var autoAlignSpeaker3 = new AutoAlignTags(swerveSub);
         
         
 
@@ -68,14 +68,18 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
                     )
                 ),
-                new ConditionalCommand(new AutoRotate(swerveSub, -15, 0.025), new AutoRotate(swerveSub, 15, 0.025), this::isBlue)
+                //new ConditionalCommand(new AutoRotate(swerveSub, 10, 0.6).withTimeout(1), new AutoRotate(swerveSub, -10, 0.6), this::isBlue),
+                new AutoDrive(swerveSub, 1, -0.6).withTimeout(1),
+               // new AutoRotate(swerveSub, 45, 0.5)),
+                //new AutoAlignTags(swerveSub)
+                new ConditionalCommand(new AutoRotate(swerveSub, -11, 0.025), new AutoRotate(swerveSub, 11, 0.025), this::isBlue)
                     .until(AutoAlignTags::speakerAimReady)
-                    .withTimeout(5),
-                autoAlignNote3.until(autoAlignNote3::aligned),//.until(AutoAlignTags::aligned),
+                    .withTimeout(4),
+                autoAlignSpeaker3.until(autoAlignSpeaker3::aligned),//.until(AutoAlignTags::aligned),
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
                 new AutoAlignTags(swerveSub).withTimeout(1), 
                 new StopCommand(swerveSub),
-                new AutoShootSmart(shooterSub, intakeSub)
+                new AutoShootSmart(shooterSub, intakeSub).withTimeout(2)
              );
 
                 // new AutoRotate(swerveSub, 90, 0.5),
