@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase {
         Shuffleboard.getTab("Drive").addBoolean("hasNote", this::hasNote);
         this.shooterSub = shooterSub;
 
-        intakeTwo.setInverted(false);
+        intakeTwo.setInverted(true);
     }
 
     // boolena
