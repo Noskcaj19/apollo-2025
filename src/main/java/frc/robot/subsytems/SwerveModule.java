@@ -48,8 +48,8 @@ public class SwerveModule {
         private final PIDController drivePIDController = new PIDController(.1, 0, 0);
 
         // i i i ffffffffffffffffffff
-        SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.18359, 3.0413);
-
+        //SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.18359, 3.0413);
+        SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.00847, 0.27927, 0.09857);
         // pid turning trapezoidal
 
         // private final PIDController turningPIDController = new PIDController(1.0 /
