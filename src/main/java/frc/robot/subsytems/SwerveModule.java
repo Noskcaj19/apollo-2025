@@ -183,6 +183,10 @@ public class SwerveModule {
                 // SwerveModuleState state = optimizeModuleState(desiredState);
                 SwerveModuleState state = desiredState;
 
+                state.speedMetersPerSecond *= desiredState.angle.minus(getState().angle).getCos();
+
+                // Math.cos(desiredState.angle - getState().angle);
+
                 var fff = feedforward.calculate(state.speedMetersPerSecond);
 
                 // Calculate the turning motor output from the turning PID controller.
