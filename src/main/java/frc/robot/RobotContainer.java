@@ -84,6 +84,10 @@ public class RobotContainer {
 
     // Shuffleboard.getTab("autoChooser").add(autoChooser);
 
+    new Thread(() -> {
+      LimelightHelpers.getLatestResults("limelight-back");
+    }).start();
+
   }
 
   private void configureBindings() {
