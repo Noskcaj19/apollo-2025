@@ -1,5 +1,8 @@
 package frc.robot.command.autolime;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -35,8 +38,22 @@ public class AutoAlignTags extends Command {
     //     // horizontal offset
     // }
 
-    final Pose3d getSpace() {
-        return (LimelightHelpers.getTargetPose3d_CameraSpace("limelight-back"));
+    final Optional<Pose3d> getSpace() {
+        // return Optional.ofNullable((LimelightHelpers.getTargetPose3d_CameraSpace("limelight-back")));
+
+        LimelightHelpers.LimelightResults llresults = LimelightHelpers.getLatestResults("limelight-back");
+        var target = Stream.of(llresults.targets_Fiducials)
+            .filter(f-> (f.fiducialID == 4) || (f.fiducialID==7))
+            .findFirst() ;
+
+        if(target.isPresent()) {
+            return Optional.of(target.get().getTargetPose_RobotSpace());  
+        } else {
+            return Optional.empty();
+        }
+
+
+        //Streamllresults.targets_Fiducials[0].getTargetPose_RobotSpace();
         // return (x.getDouble(160)/160)-1;
         // whatever the distance is
         // returns the specific distance value we want so we can pid it???
@@ -61,44 +78,58 @@ public class AutoAlignTags extends Command {
 
         // the robot cant like run into the limelight he needs to be close but not too
         // close omg im gonna die
-        distancePID.setGoal(1.5);
+        distancePID.setGoal(-1.5);
         distancePID.setIntegratorRange(-15, 15);
         xPID.setIntegratorRange(-15, 15);
     }
 
     public boolean aligned(){
-        if (!LimelightHelpers.getTV("limelight-back")) {
+        // if (!LimelightHelpers.getTV("limelight-back")) {
+        //     return false;
+        // }
+        var target_opt = getSpace();
+        if(target_opt.isEmpty()){
             return false;
         }
-        if((getSpace().getZ()< 1.55 && getSpace().getZ() > 1.4) && (Math.abs(getSpace().getX()) < 0.2)){
+        var target = target_opt.get();
+        if((target.getZ()> -1.55 && target.getZ() < -1.4) && (Math.abs(target.getX()) < 0.2)){
             return true;
         }
         else{
             return false;
         }
+        
     }
 
     @Override
     public void initialize() {
-        distancePID.reset(1.5);
+       LimelightHelpers.SetFiducialIDFiltersOverride("limelight-back", new int[]{4,7});
+        distancePID.reset(-1.5);
         xPID.reset(0);
 
     }
 
     @Override
     public void execute() {
-        if (LimelightHelpers.getTV("limelight-back")) {
-            var id = LimelightHelpers.getFiducialID("limelight-back");
+       // if (LimelightHelpers.getTV("limelight-back")) {
+       //     var id = LimelightHelpers.getFiducialID("limelight-back");
+    var target_opt = getSpace();
+        if(target_opt.isEmpty()){
+                swerveSub.drive(0, 0, 0, false);
+
+            return;
+        }
+        var target = target_opt.get();
             // if (!(id == 7 || id == 4)) { return; }
             // backTagID = LimelightHelpers.getFiducialID("limelight-back");
                         // double xOff = -xPID.calculate(getZontal());
-                        var rot = xPID.calculate(getSpace().getX());
+                        var rot = -xPID.calculate(target.getX());
                         rot = MathUtil.clamp(rot, -DriveConstants.MaxVelocityMetersPerSecond/5, DriveConstants.MaxVelocityMetersPerSecond/5);
                         // var xOff = 0.0;
 
                         var df = NetworkTableInstance.getDefault();
-                        df.getEntry("/Shuffleboard/Tune/LimeZ").setDouble(getSpace().getZ());
-                        double yOff = distancePID.calculate(getSpace().getZ());
+                        df.getEntry("/Shuffleboard/Tune/LimeZ").setDouble(target.getZ());
+                        double yOff = -distancePID.calculate(target.getZ());
                         yOff = MathUtil.clamp(yOff, -DriveConstants.MaxVelocityMetersPerSecond/3.5, DriveConstants.MaxVelocityMetersPerSecond/3.5);
                         df.getEntry("/Shuffleboard/Tune/DistancePID").setDouble(yOff);
                         // figure out how to use an array, which value of the array am i using??
@@ -113,20 +144,18 @@ public class AutoAlignTags extends Command {
                         // is x forward and backward??
                         // wtf
                         // is y forward?
-            }
         
             // else if(LimelightHelpers.getTV("limelight-front")){
             //     if(!LimelightHelpers.getTV("limelight-back")){
             //         swerveSub.drive(0, 0, 0.25, false);
             //     }
             // }
-            else {
-                swerveSub.drive(0, 0, 0, false);
-            }
+      
     }
 
     @Override
     public void end(boolean interrupted) {
+       //LimelightHelpers.SetFiducialIDFiltersOverride("limelight-back", new int[]{});
         swerveSub.drive(0, 0, 0, false, 0, 0);
     }
 }
