@@ -47,7 +47,7 @@ public class DefaultSwerve extends Command {
         if (joy.getRawButton(7)) {
             xSpeed *= 0.75;
             ySpeed *= 0.75;
-            rot *= 0.2;
+            rot *= 0.25;
         }
 
         if (joy.getRawButton(12)) {

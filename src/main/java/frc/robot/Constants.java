@@ -74,7 +74,7 @@ public final class Constants {
         ModuleType.getWheelDiameter() * Math.PI;
 
     public static final double MaxAngularVelocityRadiansPerSecond = MaxVelocityMetersPerSecond
-        / Math.hypot(kTrackWidthMeters / 2, kTrackBaseMeters / 2) ;
+        / Math.hypot(kTrackWidthMeters / 2, kTrackBaseMeters / 2) *.75;
 
   }
 
