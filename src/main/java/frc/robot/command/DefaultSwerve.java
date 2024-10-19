@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsytems.*;
 
 public class DefaultSwerve extends Command {
@@ -41,7 +42,9 @@ public class DefaultSwerve extends Command {
             ySpeed *= 0.5;
             rot *= 0.1;
         } else {
-            rot *= 0.5;
+            rot *= 0.6 ;
+            xSpeed *= 0.8;
+            ySpeed *= 0.8;
         }
 
         if (joy.getRawButton(7)) {
@@ -49,7 +52,7 @@ public class DefaultSwerve extends Command {
             ySpeed *= 0.75;
             rot *= 0.25;
         }
-
+  
         if (joy.getRawButton(12)) {
             SwerveSubsystem.zeroYaw();
         }

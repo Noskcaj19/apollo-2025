@@ -36,7 +36,7 @@ public class DefaultIntake extends Command {
         } else {
             mouth.stopSmIntake();
         }
-        // if (primaryJoystick.getRawButtonPressed(12)) {
+        // if (primaryJoystick.l Pressed(12)) {
         // mouth.smartIntake();
         // // System.out.println(mouth.get());
         // } else if (primaryJoystick.getRawButtonReleased(12)) {
