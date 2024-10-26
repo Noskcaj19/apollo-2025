@@ -148,6 +148,7 @@ public class Intake extends SubsystemBase {
             }
         } else if (isFeeding) {
             transport.set(ControlMode.PercentOutput, .7);
+            intakeOne.set(ControlMode.PercentOutput, 0.5);
             intakeTwo.set(ControlMode.PercentOutput, 0.5);
 
         } else {
