@@ -36,8 +36,8 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
         this.shooterSub = shooterSub;
         this.intakeSub = intakeSub;
 
-        var autoAlign = new AutoAlignTags(swerveSub);
-        var autoAlignSpeaker3 = new AutoAlignTags(swerveSub);
+        // var autoAlign = new AutoAlignTags(swerveSub);
+        // var autoAlignSpeaker3 = new AutoAlignTags(swerveSub);
         
         
 
@@ -54,7 +54,8 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                     )
                 ),
                 new AutoDrive(swerveSub, 1, -0.2).until(this::closeEnough).withTimeout(4),
-                autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
+                // autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
+                new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned),
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
                 new AutoAlignTags(swerveSub).withTimeout(.5), 
                 new StopCommand(swerveSub),
@@ -75,12 +76,24 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new ConditionalCommand(new AutoRotate(swerveSub, -11, 0.025), new AutoRotate(swerveSub, 11, 0.025), this::isBlue)
                     .until(AutoAlignTags::speakerAimReady)
                     .withTimeout(4),
-                autoAlignSpeaker3.until(autoAlignSpeaker3::aligned),//.until(AutoAlignTags::aligned),
+                // autoAlignSpeaker3.until(autoAlignSpeaker3::aligned),//.until(AutoAlignTags::aligned),
+                new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned),
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
                 new AutoAlignTags(swerveSub).withTimeout(1), 
                 new StopCommand(swerveSub),
-                new AutoShootSmart(shooterSub, intakeSub).withTimeout(2)
-             );
+                new AutoShootSmart(shooterSub, intakeSub).withTimeout(2),
+        //     //    new ConditionalCommand(new AutoRotate(swerveSub, -#, #), new AutoRotate(swerveSub, #, #), this::isBlue)
+        //     //    Commands.race(
+        //     //        new AutoDriveAndTrackNote(swerveSub, #, #),
+        //     //        Commands.race(
+        //     //            new AutoIntake(intakeSub),
+        //     //            new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(#))
+        //     //        )
+        //         ),
+        //         new AutoDrive(swerveSub, 1,#).withTimeout(1),
+        //         new ConditionalCommand(new AutoRotate(swerveSub, #, #), new AutoRotate(swerveSub, #, #), this::isBlue)
+
+        // );
 
                 // new AutoRotate(swerveSub, 90, 0.5),
                 //  Commands.race(
