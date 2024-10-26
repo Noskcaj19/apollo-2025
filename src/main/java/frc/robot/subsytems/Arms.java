@@ -19,6 +19,7 @@ public class Arms extends SubsystemBase {
     // private
     public Arms() {
         //arm2.follow(arm1);
+        arm1.setInverted(true);
     }
 
     public void setArmLimitSetpoint(double setpoint) {
