@@ -40,7 +40,7 @@ public class DefaultSwerve extends Command {
         if (!joy.getTrigger()) {
             xSpeed *= 0.5;
             ySpeed *= 0.5;
-            rot *= 0.1;
+            rot *= 0.4;
         } else {
             rot *= 0.6 ;
             xSpeed *= 0.8;
@@ -54,7 +54,7 @@ public class DefaultSwerve extends Command {
         }
   
         if (joy.getRawButton(12)) {
-            SwerveSubsystem.zeroYaw();
+            swerveSub.zeroYaw();
         }
 
         swerveSub.drive(xSpeed, ySpeed, rot, !joy.getRawButton(2));

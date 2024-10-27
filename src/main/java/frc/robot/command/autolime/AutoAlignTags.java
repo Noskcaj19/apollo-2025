@@ -38,7 +38,7 @@ public class AutoAlignTags extends Command {
     //     // horizontal offset
     // }
 
-    final Optional<Pose3d> getSpace() {
+    static final Optional<Pose3d> getSpace() {
         // return Optional.ofNullable((LimelightHelpers.getTargetPose3d_CameraSpace("limelight-back")));
 
         LimelightHelpers.LimelightResults llresults = LimelightHelpers.getLatestResults("limelight-back");
@@ -83,7 +83,7 @@ public class AutoAlignTags extends Command {
         xPID.setIntegratorRange(-15, 15);
     }
 
-    public boolean aligned(){
+    static public boolean aligned(){
         // if (!LimelightHelpers.getTV("limelight-back")) {
         //     return false;
         // }
@@ -152,7 +152,7 @@ public class AutoAlignTags extends Command {
             // }
       
     }
-
+    
     @Override
     public void end(boolean interrupted) {
        //LimelightHelpers.SetFiducialIDFiltersOverride("limelight-back", new int[]{});

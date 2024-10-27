@@ -46,14 +46,16 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new AutoAlignTags(swerveSub).withTimeout(.5),
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub),
+                // get second note (center)
+               // new AutoDrive(swerveSub, 1, 0.7),
                 Commands.race(
-                    new AutoDriveAndTrackNote(swerveSub, 3, 0.2),
+                    new AutoDriveAndTrackNote(swerveSub, 1, 0.2),
                     Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
                     )
                 ),
-                new AutoDrive(swerveSub, 1, -0.2).until(this::closeEnough).withTimeout(4),
+                new AutoDrive(swerveSub, 1, -0.4).withTimeout(4),
                 // autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
                 new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned),
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
@@ -61,7 +63,7 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(4),
                 // end 2nd note
-                new ConditionalCommand(new AutoRotate(swerveSub, 10, 0.08), new AutoRotate(swerveSub, -10, 0.08), this::isBlue),
+                new ConditionalCommand(new AutoRotate(swerveSub, 30, 0.08), new AutoRotate(swerveSub, -30, 0.08), this::isBlue),
                 Commands.race(
                     new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
                     Commands.race(
@@ -70,10 +72,10 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                     )
                 ),
                 //new ConditionalCommand(new AutoRotate(swerveSub, 10, 0.6).withTimeout(1), new AutoRotate(swerveSub, -10, 0.6), this::isBlue),
-                new AutoDrive(swerveSub, 1, -0.6).withTimeout(1),
+                new AutoDrive(swerveSub, 1, -0.6).withTimeout(2.5),
                // new AutoRotate(swerveSub, 45, 0.5)),
                 //new AutoAlignTags(swerveSub)
-                new ConditionalCommand(new AutoRotate(swerveSub, -11, 0.025), new AutoRotate(swerveSub, 11, 0.025), this::isBlue)
+                new ConditionalCommand(new AutoRotate(swerveSub, -31, 0.25), new AutoRotate(swerveSub, 31, 0.25), this::isBlue)
                     .until(AutoAlignTags::speakerAimReady)
                     .withTimeout(4),
                 // autoAlignSpeaker3.until(autoAlignSpeaker3::aligned),//.until(AutoAlignTags::aligned),
@@ -81,15 +83,28 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
                 new AutoAlignTags(swerveSub).withTimeout(1), 
                 new StopCommand(swerveSub),
+
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(2),
-        //     //    new ConditionalCommand(new AutoRotate(swerveSub, -#, #), new AutoRotate(swerveSub, #, #), this::isBlue)
-        //     //    Commands.race(
-        //     //        new AutoDriveAndTrackNote(swerveSub, #, #),
-        //     //        Commands.race(
-        //     //            new AutoIntake(intakeSub),
-        //     //            new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(#))
-        //     //        )
-        //         ),
+
+                // start note 4
+                 new ConditionalCommand(new AutoRotate(swerveSub, -50, 0.08), new AutoRotate(swerveSub, 50, 0.08), this::isBlue),
+                 Commands.race(
+                     new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
+                     Commands.race(
+                        new AutoIntake(intakeSub),
+                        new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(0.5))
+                    )
+                ),
+                new AutoDrive(swerveSub, 2.5, -0.7).withTimeout(2),
+                new ConditionalCommand(new AutoRotate(swerveSub, 10, 0.25), new AutoRotate(swerveSub, -10, 0.25), this::isBlue)
+                    .until(AutoAlignTags::speakerAimReady)
+                    .withTimeout(4),
+                new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned),
+                new AutoAlignTags(swerveSub).withTimeout(1),
+                new StopCommand(swerveSub),
+                new AutoShootSmart(shooterSub, intakeSub).withTimeout(2)
+
+        );
         //         new AutoDrive(swerveSub, 1,#).withTimeout(1),
         //         new ConditionalCommand(new AutoRotate(swerveSub, #, #), new AutoRotate(swerveSub, #, #), this::isBlue)
 
@@ -110,7 +125,7 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
     private MedianFilter zFilter = new MedianFilter(7);
     private boolean closeEnough() {
         if(LimelightHelpers.getTV("limelight-back")){
-        var rawZ = LimelightHelpers.getTargetPose3d_CameraSpace(("limelight-back")).getZ();
+        var rawZ = LimelightHelpers.getTargetPose3d_RobotSpace(("limelight-back")).getZ();
         var z = zFilter.calculate(rawZ);
         if(z < 1.3){
             return true;
@@ -129,13 +144,16 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
         Optional<Alliance> ally = DriverStation.getAlliance();
         if(ally.isPresent()){
             if (ally.get() == Alliance.Blue) {
+                System.out.println("Blue");
                 return true;
             }
             else {
+                System.out.println("Red");
                 return false;
             }
         }
         else{
+                System.out.println("error :(");
             return false;
         }
     }

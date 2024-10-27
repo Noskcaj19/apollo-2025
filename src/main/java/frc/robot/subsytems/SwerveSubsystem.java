@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -82,7 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 // rot *= 0.2;
                 // }
                 ChassisSpeeds chasSpeed = fieldRelative
-                                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, gyro.getRotation2d())
+                                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getRotation())
                                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
                 // var swerveModuleStates = kinematics.toSwerveModuleStates(chasSpeed);
@@ -114,9 +115,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 }
         }
 
+        public Rotation2d yawOffset = new Rotation2d();
+
         SwerveDriveOdometry ometry = new SwerveDriveOdometry(
                         kinematics,
-                        gyro.getRotation2d(),
+                        getRotation(),
                         new SwerveModulePosition[] {
                                         fLSwerve.getPosition(),
                                         fRSwerve.getPosition(),
@@ -124,8 +127,16 @@ public class SwerveSubsystem extends SubsystemBase {
                                         bRSwerve.getPosition()
                         });
 
-        public static void zeroYaw() {
-                gyro.zeroYaw();
+        
+
+        public Rotation2d getRotation() {
+                return gyro.getRotation2d().minus(yawOffset);
+        }
+
+        public void zeroYaw() {
+                if (gyro.getRotation2d() != null) {
+                        yawOffset = gyro.getRotation2d();
+                }
         }
         // Configure AutoBuilder last
 
@@ -133,7 +144,7 @@ public class SwerveSubsystem extends SubsystemBase {
         public void periodic() {
                 // TODO Auto-generated method stub
                 ometry.update(
-                                gyro.getRotation2d(),
+                                getRotation(),
                                 new SwerveModulePosition[] {
                                                 fLSwerve.getPosition(),
                                                 fRSwerve.getPosition(),
@@ -149,13 +160,10 @@ public class SwerveSubsystem extends SubsystemBase {
                 return ometry.getPoseMeters();
         }
 
-        public double getYaw() {
-                return gyro.getYaw();
-        }
 
         public void resetOmetry(Pose2d pose) {
                 ometry.resetPosition(
-                                gyro.getRotation2d(),
+                                getRotation(),
                                 new SwerveModulePosition[] {
                                                 fLSwerve.getPosition(),
                                                 fRSwerve.getPosition(),

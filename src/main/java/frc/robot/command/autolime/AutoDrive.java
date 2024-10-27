@@ -14,7 +14,7 @@ public class AutoDrive extends Command {
     private double goalDistance;
     private double speed;
     private Translation2d startPosition;
-    SlewRateLimiter slew = new SlewRateLimiter(0.2);
+    SlewRateLimiter slew = new SlewRateLimiter(0.7);
 
     public AutoDrive(SwerveSubsystem swerveSub, double goalDistance, double speed) {
 
