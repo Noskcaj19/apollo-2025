@@ -47,15 +47,15 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub),
                 // get second note (center)
-               // new AutoDrive(swerveSub, 1, 0.7),
+                new AutoDrive(swerveSub, 0.75, 0.7),
                 Commands.race(
-                    new AutoDriveAndTrackNote(swerveSub, 1, 0.2),
+                    new AutoDriveAndTrackNote(swerveSub, 1, 0.4),
                     Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
                     )
                 ),
-                new AutoDrive(swerveSub, 1, -0.4).withTimeout(4),
+                new AutoDrive(swerveSub, 0.8, -0.6).withTimeout(4),
                 // autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
                 new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned),
                 // this line is not a mistake, we might have overshot in the above line, so we run a bit longer
@@ -63,9 +63,9 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(4),
                 // end 2nd note
-                new ConditionalCommand(new AutoRotate(swerveSub, 30, 0.08), new AutoRotate(swerveSub, -30, 0.08), this::isBlue),
+                new ConditionalCommand(new AutoRotate(swerveSub, 35, 0.08), new AutoRotate(swerveSub, -35, 0.08), this::isBlue),
                 Commands.race(
-                    new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
+                    new AutoDriveAndTrackNote(swerveSub, 2, 0.35),
                     Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
@@ -87,9 +87,9 @@ public class ThreeNoteCenterAuto extends SequentialCommandGroup{
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(2),
 
                 // start note 4
-                 new ConditionalCommand(new AutoRotate(swerveSub, -50, 0.08), new AutoRotate(swerveSub, 50, 0.08), this::isBlue),
+                 new ConditionalCommand(new AutoRotate(swerveSub, -50, 0.2), new AutoRotate(swerveSub, 50, 0.2), this::isBlue),
                  Commands.race(
-                     new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
+                     new AutoDriveAndTrackNote(swerveSub, 2.5, 0.35),
                      Commands.race(
                         new AutoIntake(intakeSub),
                         new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(0.5))
