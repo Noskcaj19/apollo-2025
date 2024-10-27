@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.command.autolime.AutoAlignTags;
 
@@ -140,6 +141,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         // Configure AutoBuilder last
 
+        
         @Override
         public void periodic() {
                 // TODO Auto-generated method stub
@@ -242,5 +244,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 );
                 Shuffleboard.getTab("Debug").addDouble("drive velocity", this::getDriveMotorVelocity);
                 Shuffleboard.getTab("Debug").addDouble("drive velocity unfiltered", () -> fLSwerve.driveMotor.getEncoder().getVelocity());
+                Shuffleboard.getTab("Debug").addDouble("rotation angle", () -> LimelightHelpers.getBotPose2d("limelight-back").getRotation().getDegrees());
         }
 }
