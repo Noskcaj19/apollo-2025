@@ -21,7 +21,8 @@ public class Shooter extends SubsystemBase {
 
     public Shooter() {
         Shuffleboard.getTab("Debug").addDouble("MotorSpeed", this::getSpeedOne);
-        Shuffleboard.getTab("Debug").addDouble("MotorSpeed2", this::getSpeedTwo);        // shooterOne.configVoltageCompSaturation(12);
+        Shuffleboard.getTab("Debug").addDouble("MotorSpeed2", this::getSpeedTwo); 
+               // shooterOne.configVoltageCompSaturation(12);
         // shooterTwo.configVoltageCompSaturation(12);
     }
 
