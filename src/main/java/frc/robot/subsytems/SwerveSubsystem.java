@@ -141,6 +141,13 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         // Configure AutoBuilder last
 
+        public void botposewithapriltag() {
+                var aprilRotation = LimelightHelpers.getBotPose2d("limelight-back").getRotation();
+                if (aprilRotation.getDegrees() == 0) {
+                        return;
+                } 
+                yawOffset = gyro.getRotation2d().minus(aprilRotation);
+        }
         
         @Override
         public void periodic() {
@@ -244,6 +251,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 );
                 Shuffleboard.getTab("Debug").addDouble("drive velocity", this::getDriveMotorVelocity);
                 Shuffleboard.getTab("Debug").addDouble("drive velocity unfiltered", () -> fLSwerve.driveMotor.getEncoder().getVelocity());
-                Shuffleboard.getTab("Debug").addDouble("rotation angle", () -> LimelightHelpers.getBotPose2d("limelight-back").getRotation().getDegrees());
+                Shuffleboard.getTab("Debug").addDouble("robot angle from april tags", () -> LimelightHelpers.getBotPose2d("limelight-back").getRotation().getDegrees());
+                Shuffleboard.getTab("Debug").addDouble("robot angle from navx", () -> gyro.getRotation2d().getDegrees());
+                Shuffleboard.getTab("Debug").addDouble("yaw offset", () -> yawOffset.getDegrees());
+
         }
 }

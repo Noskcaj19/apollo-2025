@@ -97,6 +97,7 @@ public class RobotContainer {
     // new JoystickButton(primaryJoy, 8).whileTrue(new PathPlannerAuto("New New
     // new JoystickButton(primaryJoy, 11).whileTrue(new PathPlannerAuto("RIGHTAUTO"));
     new JoystickButton(primaryJoy, 10).whileTrue(new NoteRotationAlign(swerveSub));
+    new JoystickButton(primaryJoy, 11).onTrue(Commands.runOnce(swerveSub::botposewithapriltag, swerveSub));
    // new JoystickButton(primaryJoy, 11).whileTrue(new AutoDriveAndTrackNote(swerveSub, 2.5, 0.3));
     // Auto"));
   }
