@@ -30,6 +30,9 @@ private Rotation2d startingYaw;
     @Override
     public void initialize(){
         startingYaw = swerveSub.getRotation(); 
+        if(goalYaw < 0){
+            turnSpeed = -turnSpeed;
+        }
     }
     @Override
     public void execute(){

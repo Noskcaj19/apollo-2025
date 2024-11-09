@@ -128,7 +128,6 @@ public class SwerveSubsystem extends SubsystemBase {
                                         bRSwerve.getPosition()
                         });
 
-        
 
         public Rotation2d getRotation() {
                 return gyro.getRotation2d().minus(yawOffset);
