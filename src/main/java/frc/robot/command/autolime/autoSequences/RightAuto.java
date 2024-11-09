@@ -24,23 +24,30 @@ public class RightAuto extends SequentialCommandGroup{
 
     public RightAuto (SwerveSubsystem swerveSub, Shooter shooterSub, Intake intakeSub){
         addCommands(
-        new AutoDrive(swerveSub, 0.5, 0.5).withTimeout(2),
-        new AutoAlignTags(swerveSub).withTimeout(0.5),
-        new AutoShootSmart(shooterSub, intakeSub).withTimeout(3),
-        new AutoDrive(swerveSub, 0.3, 0.6).withTimeout(1),
-        new AutoRotate(swerveSub, -45, 0.3).withTimeout(3),
-        //new AutoIntakeDrive(swerveSub, intakeSub, 5, 0.3).withTimeout(2)
-        Commands.race(
-                    new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
-                    Commands.race(
-                        new AutoIntake(intakeSub),
-                        new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
-                    )
-                ),
-        new AutoDrive(swerveSub, 1, 0.3).withTimeout(3),
-        new AutoRotate(swerveSub, -30, 0.2),
-        new AutoAlignTags(swerveSub).withTimeout(2),
-        new AutoShootSmart(shooterSub, intakeSub)
+            new WaitCommand(7),
+           // new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned).withTimeout(0.5),
+            new AutoShootSmart(shooterSub, intakeSub),
+            new AutoDrive(swerveSub, 0.2, 0.5),
+            new AutoRotate(swerveSub, 30, 0.25),
+            new AutoDrive(swerveSub, 2.1, 0.5)
+        // addCommands(
+        // new AutoDrive(swerveSub, 0.5, 0.5).withTimeout(2),
+        // new AutoAlignTags(swerveSub).withTimeout(0.5),
+        // new AutoShootSmart(shooterSub, intakeSub).withTimeout(3),
+        // new AutoDrive(swerveSub, 0.3, 0.6).withTimeout(1),
+        // new AutoRotate(swerveSub, -45, 0.3).withTimeout(3),
+        // //new AutoIntakeDrive(swerveSub, intakeSub, 5, 0.3).withTimeout(2)
+        // Commands.race(
+        //             new AutoDriveAndTrackNote(swerveSub, 2.5, 0.2),
+        //             Commands.race(
+        //                 new AutoIntake(intakeSub),
+        //                 new WaitUntilCommand(intakeSub::hasNote).andThen(new WaitCommand(.15))
+        //             )
+        //         ),
+        // new AutoDrive(swerveSub, 1, 0.3).withTimeout(3),
+        // new AutoRotate(swerveSub, -30, 0.2),
+        // new AutoAlignTags(swerveSub).withTimeout(2),
+        // new AutoShootSmart(shooterSub, intakeSub)
         );
     }
     

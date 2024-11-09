@@ -64,7 +64,8 @@ public class CenterAuto extends SequentialCommandGroup {
                     )
                 ),
                 new AutoDrive(swerveSub, 1, -0.2).until(this::closeEnough).withTimeout(4),
-                autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
+                // autoAlign.until(autoAlign::aligned),//.until(AutoAlignTags::aligned),
+                new AutoAlignTags(swerveSub).until(AutoAlignTags::aligned),
                 new AutoAlignTags(swerveSub).withTimeout(.5),
                 new StopCommand(swerveSub),
                 new AutoShootSmart(shooterSub, intakeSub).withTimeout(4),

@@ -20,8 +20,8 @@ import frc.robot.Constants;
 public class Shooter extends SubsystemBase {
 
     public Shooter() {
-        Shuffleboard.getTab("debug").addDouble("MotorSpeed", this::getSpeedOne);
-        // shooterOne.configVoltageCompSaturation(12);
+        Shuffleboard.getTab("Debug").addDouble("MotorSpeed", this::getSpeedOne);
+        Shuffleboard.getTab("Debug").addDouble("MotorSpeed2", this::getSpeedTwo);        // shooterOne.configVoltageCompSaturation(12);
         // shooterTwo.configVoltageCompSaturation(12);
     }
 
@@ -92,7 +92,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isToSpeakerSpeed() {
-        if (getSpeedOne() > 4100) {
+        if (Math.abs(getSpeedTwo()) > 4100) {
             return true;
         } else {
             return false;//hello

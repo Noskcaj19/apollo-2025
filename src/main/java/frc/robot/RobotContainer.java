@@ -22,6 +22,7 @@ import frc.robot.command.autolime.AutoAlignNotes;
 import frc.robot.command.autolime.AutoAlignTags;
 import frc.robot.command.autolime.AutoDrive;
 import frc.robot.command.autolime.AutoDriveAndTrackNote;
+import frc.robot.command.autolime.AutoRotate;
 import frc.robot.command.autolime.NoteRotationAlign;
 import frc.robot.command.autolime.autoSequences.CenterAuto;
 import frc.robot.command.autolime.autoSequences.LeftAuto;
@@ -71,6 +72,7 @@ public class RobotContainer {
     autoChooser.addOption("center", new CenterAuto(swerveSub, shooter, mouth));
     autoChooser.addOption("left", new LeftAuto(swerveSub, shooter, mouth));
     autoChooser.addOption("3_Note_Center", new ThreeNoteCenterAuto(swerveSub, shooter, mouth));
+    autoChooser.addOption("rotate", new AutoRotate(swerveSub, 30, 0.25));
     // autoChooser.addOption("right",new ThreeAutoToRuleThemAll(swerveSub, shooter, mouth));
     Shuffleboard.getTab("auto").add(autoChooser);
     Shuffleboard.getTab("Drive").add("ResetClimb", new ResetClimb(Arms));
@@ -95,6 +97,7 @@ public class RobotContainer {
     // new JoystickButton(primaryJoy, 8).whileTrue(new PathPlannerAuto("New New
     // new JoystickButton(primaryJoy, 11).whileTrue(new PathPlannerAuto("RIGHTAUTO"));
     new JoystickButton(primaryJoy, 10).whileTrue(new NoteRotationAlign(swerveSub));
+    new JoystickButton(primaryJoy, 11).onTrue(Commands.runOnce(swerveSub::botposewithapriltag, swerveSub));
    // new JoystickButton(primaryJoy, 11).whileTrue(new AutoDriveAndTrackNote(swerveSub, 2.5, 0.3));
     // Auto"));
   }

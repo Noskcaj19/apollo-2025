@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.command.autolime.AutoAlignTags;
 
@@ -82,7 +84,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 // rot *= 0.2;
                 // }
                 ChassisSpeeds chasSpeed = fieldRelative
-                                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, gyro.getRotation2d())
+                                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getRotation())
                                 : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
                 // var swerveModuleStates = kinematics.toSwerveModuleStates(chasSpeed);
@@ -114,9 +116,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 }
         }
 
+        public Rotation2d yawOffset = new Rotation2d();
+
         SwerveDriveOdometry ometry = new SwerveDriveOdometry(
                         kinematics,
-                        gyro.getRotation2d(),
+                        getRotation(),
                         new SwerveModulePosition[] {
                                         fLSwerve.getPosition(),
                                         fRSwerve.getPosition(),
@@ -124,16 +128,31 @@ public class SwerveSubsystem extends SubsystemBase {
                                         bRSwerve.getPosition()
                         });
 
-        public static void zeroYaw() {
-                gyro.zeroYaw();
+
+        public Rotation2d getRotation() {
+                return gyro.getRotation2d().minus(yawOffset);
+        }
+
+        public void zeroYaw() {
+                if (gyro.getRotation2d() != null) {
+                        yawOffset = gyro.getRotation2d();
+                }
         }
         // Configure AutoBuilder last
 
+        public void botposewithapriltag() {
+                var aprilRotation = LimelightHelpers.getBotPose2d("limelight-back").getRotation();
+                if (aprilRotation.getDegrees() == 0) {
+                        return;
+                } 
+                yawOffset = gyro.getRotation2d().minus(aprilRotation);
+        }
+        
         @Override
         public void periodic() {
                 // TODO Auto-generated method stub
                 ometry.update(
-                                gyro.getRotation2d(),
+                                getRotation(),
                                 new SwerveModulePosition[] {
                                                 fLSwerve.getPosition(),
                                                 fRSwerve.getPosition(),
@@ -149,13 +168,10 @@ public class SwerveSubsystem extends SubsystemBase {
                 return ometry.getPoseMeters();
         }
 
-        public double getYaw() {
-                return gyro.getYaw();
-        }
 
         public void resetOmetry(Pose2d pose) {
                 ometry.resetPosition(
-                                gyro.getRotation2d(),
+                                getRotation(),
                                 new SwerveModulePosition[] {
                                                 fLSwerve.getPosition(),
                                                 fRSwerve.getPosition(),
@@ -234,5 +250,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 );
                 Shuffleboard.getTab("Debug").addDouble("drive velocity", this::getDriveMotorVelocity);
                 Shuffleboard.getTab("Debug").addDouble("drive velocity unfiltered", () -> fLSwerve.driveMotor.getEncoder().getVelocity());
+                Shuffleboard.getTab("Debug").addDouble("robot angle from april tags", () -> LimelightHelpers.getBotPose2d("limelight-back").getRotation().getDegrees());
+                Shuffleboard.getTab("Debug").addDouble("robot angle from navx", () -> gyro.getRotation2d().getDegrees());
+                Shuffleboard.getTab("Debug").addDouble("yaw offset", () -> yawOffset.getDegrees());
+
         }
 }
