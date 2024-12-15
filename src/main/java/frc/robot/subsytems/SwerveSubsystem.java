@@ -1,10 +1,11 @@
 package frc.robot.subsytems;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -17,13 +18,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.command.autolime.AutoAlignTags;
+import frc.robot.LimelightHelpers;
 
 //add motor channel numbers later
 public class SwerveSubsystem extends SubsystemBase {
@@ -42,7 +41,7 @@ public class SwerveSubsystem extends SubsystemBase {
         private final SwerveModule bLSwerve = new SwerveModule(17, 16, 21, true, true, 0.172);
         private final SwerveModule bRSwerve = new SwerveModule(11, 10, 18, true, true, -0.429);
 
-        private static AHRS gyro = new AHRS(SPI.Port.kMXP);
+        private static AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
 
         private LinearFilter hitFilter = LinearFilter.movingAverage(30);
 
@@ -213,27 +212,35 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         public SwerveSubsystem() {
-                AutoBuilder.configureHolonomic(
+                RobotConfig config;
+                try {
+                        config = RobotConfig.fromGUISettings();
+                } catch (Exception e) {
+                        // Handle exception as needed
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                }
+
+                AutoBuilder.configure(
                                 this::getPose, // Robot pose supplier
                                 this::resetOmetry, // Method to reset odometry (will be called if your auto has a
                                                    // starting pose)
                                 this::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                                (ChassisSpeeds speeds) -> {
+                                (speeds, feedforwards) -> {
+                                        // todo: make use of feedfowards
                                         var swerveModuleStates = DriveConstants.kinematics.toSwerveModuleStates(
                                                         ChassisSpeeds.discretize(speeds, .02));
                                         driveStates(swerveModuleStates);
                                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live
-                                                                 // in your
-                                                                 // Constants class
+                                new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live
+                                                                // in your Constants class
                                                 new PIDConstants(.5, 0.0, 0.0), // Translation PID constants
-                                                new PIDConstants(3, 0.0, 0.0), // Rotation PID constants
-                                                1.5, // Max module speed, in m/s
-                                                0.3, // Drive base radius in meters. Distance from robot center to
-                                                     // furthest module.
-                                                new ReplanningConfig() // Default path replanning config. See the API
-                                                                       // for the options here
+                                                new PIDConstants(3, 0.0, 0.0) // Rotation PID constants
+                                // 1.5, // Max module speed, in m/s
+                                // 0.3 // Drive base radius in meters. Distance from robot center to
+                                // // furthest module.
                                 ),
+                                config,
                                 () -> {
                                         // Boolean supplier that controls when the path will be mirrored for the red
                                         // alliance

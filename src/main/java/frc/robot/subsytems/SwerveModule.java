@@ -1,27 +1,27 @@
 package frc.robot.subsytems;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants;
 
@@ -31,8 +31,8 @@ public class SwerveModule {
 
         // defines motors for a singular module
 
-        public final CANSparkMax driveMotor;
-        private final CANSparkMax turningMotor;
+        public final SparkMax driveMotor;
+        private final SparkMax turningMotor;
 
         // add encoder model later
 
@@ -61,7 +61,7 @@ public class SwerveModule {
         // SimpleMotorFeedforward(s, v);
         private final SimpleMotorFeedforward turnFeedforward = new SimpleMotorFeedforward(0.13943, 0.39686, 0.015295);
 
-        private SparkPIDController pidController;
+        private SparkClosedLoopController pidController;
 
         private final TrapezoidProfile.Constraints turnConstraints = new TrapezoidProfile.Constraints(
                         Float.POSITIVE_INFINITY,
@@ -80,27 +80,64 @@ public class SwerveModule {
                         double magnetOffset) {
                 // add motor name
                 // makes it so you can define motor channels for the modules in subsystem
-                driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
-                turningMotor = new CANSparkMax(turningMotorID, MotorType.kBrushless);
-                turningMotor.restoreFactoryDefaults();
+                driveMotor = new SparkMax(driveMotorID, MotorType.kBrushless);
+                turningMotor = new SparkMax(turningMotorID, MotorType.kBrushless);
 
-                driveMotor.setInverted(driveMotorInverted);
-                turningMotor.setInverted(turningMotorInverted);
+                var turnConfig = new SparkMaxConfig();
+                turnConfig.inverted(turningMotorInverted);
+                turnConfig.smartCurrentLimit(20);
+                // Set neutral mode
+                turnConfig.idleMode(IdleMode.kCoast);
 
-                // add encoder name
-                // makes it so you can define encoder channels for the modules in subsystem
+                turnConfig.signals.faultsPeriodMs(100)
+                                .appliedOutputPeriodMs(10)
+                                .outputCurrentPeriodMs(10)
+                                .motorTemperaturePeriodMs(250)
+                                .primaryEncoderVelocityPeriodMs(10)
+                                .primaryEncoderPositionPeriodMs(10);
+
+                turnConfig.encoder
+                                .positionConversionFactor(
+                                                Math.toRadians(Constants.ModuleConstants.TurningEncoderDegreesPerPulse))
+                                .velocityConversionFactor(
+                                                Math.toRadians(Constants.ModuleConstants.TurningEncoderDegreesPerPulse)
+                                                                / 60);
+
+                turnConfig.closedLoop
+                                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                                .pid(1.0, 0.0, 0.1)
+                                .outputRange(-1, 1);
+
+                turningMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+                var driveConfig = new SparkMaxConfig();
+
+                driveConfig.inverted(driveMotorInverted);
+                driveConfig.smartCurrentLimit(50);
+                // Set neutral mode
+                driveConfig.idleMode(IdleMode.kBrake);
+                driveConfig.signals.faultsPeriodMs(100)
+                                .appliedOutputPeriodMs(100)
+                                .outputCurrentPeriodMs(100)
+                                .motorTemperaturePeriodMs(250)
+                                .primaryEncoderVelocityPeriodMs(250)
+                                .primaryEncoderPositionPeriodMs(20);
+
+                double drivePositionConversionFactor = Math.PI * Constants.ModuleType.getWheelDiameter()
+                                * Constants.ModuleType.getDriveReduction();
+                driveConfig.encoder
+                                .positionConversionFactor(drivePositionConversionFactor)
+                                .velocityConversionFactor(drivePositionConversionFactor / 60);
+
+                                driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters,
+                                                PersistMode.kPersistParameters);
 
                 absoluteEncoder = new CANcoder(turningEncoderID);
 
-                // turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
-
                 var config = new MagnetSensorConfigs();
-                config.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+                config.AbsoluteSensorDiscontinuityPoint = .5;
                 config.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
-                // absoluteEncoder.configAllSettings(config, 250);
-                // absoluteEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 100,
-                // 250);
                 if (magnetOffset <= 0) {
                         config.MagnetOffset = (-magnetOffset) - .5;
                 } else {
@@ -110,52 +147,16 @@ public class SwerveModule {
                 absoluteEncoder.getConfigurator().apply(config);
                 absoluteEncoder.getAbsolutePosition().setUpdateFrequency(100, 250);
 
-                // #region Motor controller setup
-                // driveMotor.setInverted(driveMotorInverted);
-                // turningMotor.setInverted(turningMotorInverted);
-
-                turningMotor.setSmartCurrentLimit(20);
-                driveMotor.setSmartCurrentLimit(50);
-
-                driveMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 100);
-                driveMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 20);
-                driveMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 20);
-                // Set neutral mode
-                driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
-
-                turningMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 10);
-                turningMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 20);
-                turningMotor.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 50);
-                // Set neutral mode
-                turningMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-                // #endregion
-
                 driveEncoder = driveMotor.getEncoder();
                 // TODO: FIX CONSTANTS
-                double positionConversionFactor = Math.PI * Constants.ModuleType.getWheelDiameter()
-                                * Constants.ModuleType.getDriveReduction();
-                driveEncoder.setPositionConversionFactor(positionConversionFactor);
-                driveEncoder.setVelocityConversionFactor(positionConversionFactor / 60);
 
                 turningEncoder = turningMotor.getEncoder();
 
-                turningEncoder
-                                .setPositionConversionFactor(Math
-                                                .toRadians(Constants.ModuleConstants.TurningEncoderDegreesPerPulse));
-                turningEncoder
-                                .setVelocityConversionFactor(
-                                                Math.toRadians(Constants.ModuleConstants.TurningEncoderDegreesPerPulse)
-                                                                / 60);
                 turningEncoder.setPosition(getAbsRad());
 
                 // turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-                pidController = turningMotor.getPIDController();
-                pidController.setP(1.0);
-                pidController.setI(0.0);
-                pidController.setD(0.1);
-                // pidController.setFF(1.534);
-                pidController.setOutputRange(-1, 1);
+                pidController = turningMotor.getClosedLoopController();
 
                 // Shuffleboard.getTab("Debug").addDouble("Turn Output Raw", () ->
                 // m_turningMotor.get());
@@ -197,9 +198,8 @@ public class SwerveModule {
                 pidController.setReference(state.angle.getRadians(), ControlType.kPosition);
         }
 
-        public SwerveModuleState optimizeModuleState(SwerveModuleState rawState) {
-                var optimizedState = SwerveModuleState.optimize(rawState,
-                                Rotation2d.fromRadians(turningEncoder.getPosition()));
+        public SwerveModuleState optimizeModuleState(SwerveModuleState state) {
+                state.optimize(Rotation2d.fromRadians(turningEncoder.getPosition()));
 
                 double currentAngleRadiansMod = turningEncoder.getPosition() % (2.0 * Math.PI);
                 if (currentAngleRadiansMod < 0.0) {
@@ -208,19 +208,19 @@ public class SwerveModule {
 
                 // The reference angle has the range [0, 2pi) but the Neo's encoder can go above
                 // that
-                double adjustedReferenceAngleRadians = optimizedState.angle.getRadians() + turningEncoder.getPosition()
+                double adjustedReferenceAngleRadians = state.angle.getRadians() + turningEncoder.getPosition()
                                 - currentAngleRadiansMod;
-                if (optimizedState.angle.getRadians() - currentAngleRadiansMod > Math.PI) {
+                if (state.angle.getRadians() - currentAngleRadiansMod > Math.PI) {
                         adjustedReferenceAngleRadians -= 2.0 * Math.PI;
-                } else if (optimizedState.angle.getRadians() - currentAngleRadiansMod < -Math.PI) {
+                } else if (state.angle.getRadians() - currentAngleRadiansMod < -Math.PI) {
                         adjustedReferenceAngleRadians += 2.0 * Math.PI;
                 }
 
                 // pidController.setReference(0,ControlType.kPosition);
                 // pidController.setReference(state.angle.getRadians(), ControlType.kPosition);
 
-                return new SwerveModuleState(optimizedState.speedMetersPerSecond,
-                                Rotation2d.fromRadians(adjustedReferenceAngleRadians));
+                return new SwerveModuleState(state.speedMetersPerSecond,
+                                                Rotation2d.fromRadians(adjustedReferenceAngleRadians));
         }
 
         public void resetEncoders() {

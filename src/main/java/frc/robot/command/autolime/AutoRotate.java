@@ -1,7 +1,5 @@
 package frc.robot.command.autolime;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsytems.SwerveSubsystem;
