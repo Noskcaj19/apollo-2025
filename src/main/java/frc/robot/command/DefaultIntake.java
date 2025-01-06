@@ -31,7 +31,7 @@ public class DefaultIntake extends Command {
             // mouth.printshtuff();
         }
 
-        if (secondaryController.getLeftBumper()) {
+        if (secondaryController.getLeftBumperButton()) {
             mouth.smartIntake();
         } else {
             mouth.stopSmIntake();
@@ -46,10 +46,10 @@ public class DefaultIntake extends Command {
 
         // System.out.println(mouth.getTaking());
 
-        if (secondaryController.getRightBumperPressed() || primaryController.getRawButtonPressed(7)) {
+        if (secondaryController.getRightBumperButtonPressed() || primaryController.getRawButtonPressed(7)) {
             mouth.feedOn();
         }
-        if (secondaryController.getRightBumperReleased() || primaryController.getRawButtonReleased(7)) {
+        if (secondaryController.getRightBumperButtonReleased() || primaryController.getRawButtonReleased(7)) {
             mouth.feedOff();
             shooterSub.turnOff();
         }
